@@ -10,10 +10,10 @@ class SubDlTrigger
   attr_accessor :downloader
   attr_accessor :downloaders
 
-	def initialize(arguments)
-		@id = arguments[0]
-		@name = arguments[1]
-		@saveFolder = arguments[2]
+  def initialize(arguments)
+    @id = arguments[0]
+    @name = arguments[1]
+    @saveFolder = arguments[2]
     @fullName = File.expand_path("#{@saveFolder}/#{@name}")
     @extensions = ['.mkv','.mpeg','.mpg','.avi']
     @downloaders = ["periscope"] ## At the moment, only periscope support since
@@ -30,7 +30,6 @@ class SubDlTrigger
         tmpTool = File.expand_path("#{path}/#{tool}")
         if File.file?(tmpTool) then
           @downloader =  tmpTool
-          puts "FOO"
           break
         end
         if @downloader != nil then
