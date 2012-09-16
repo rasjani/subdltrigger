@@ -6,6 +6,9 @@ class SubDlTrigger
   attr_accessor :saveFolder
   attr_accessor :fullName
   attr_accessor :files
+  attr_accessor :cmd
+  attr_accessor :downloader
+  attr_accessor :downloaders
 
 	def initialize(arguments)
 		@id = arguments[0]
@@ -13,7 +16,28 @@ class SubDlTrigger
 		@saveFolder = arguments[2]
     @fullName = File.expand_path("#{@saveFolder}/#{@name}")
     @extensions = ['.mkv','.mpeg','.mpg','.avi']
+    @downloaders = ["periscope"] ## At the moment, only periscope support since
+                                 ## subliminal doesn't have the ability to
+                                 ## store search parameters into a file
     @files = Array.new
+    @downloader = nil
+    locateDownloader
+  end
+
+  def locateDownloader
+    ENV['PATH'].split(":").each { |path|
+      @downloaders.each { |tool|
+        tmpTool = File.expand_path("#{path}/#{tool}")
+        if File.file?(tmpTool) then
+          @downloader =  tmpTool
+          puts "FOO"
+          break
+        end
+        if @downloader != nil then
+          break
+        end
+      }
+    }
   end
 
  def shellescape(str)
@@ -24,7 +48,9 @@ class SubDlTrigger
     return str
   end
 
-  def download
+  def download(fileName)
+    cmd = "#{@downloader} '#{fileName}'"
+    %x[#{cmd}>>/dev/null 2>&1]
   end
 
   def isVideoFile(name)
@@ -33,7 +59,7 @@ class SubDlTrigger
 
   def run
     if File.directory?(@fullName) then
-      Dir.glob("#{shellescape(@fullName)}/*",0).each { |entry|
+      Dir.glob("#{shellescape(@fullName)}/**",0).each { |entry|
         @files << entry if isVideoFile(entry)
       }
     else
@@ -41,8 +67,7 @@ class SubDlTrigger
     end
 
     @files.each{ |entry|
-      cmd = "periscope -l en '#{entry}'"
-      %x[#{cmd}>>/dev/null 2>&1]
+      download(entry)
     }
   end
 
