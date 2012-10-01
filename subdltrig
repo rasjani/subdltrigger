@@ -42,10 +42,17 @@ class SubDlTrigger
         end
       }
     }
+
+    if @downloader == nil then
+      puts "#{@programName}:: cannot locate appropriate sub downloader tool" if @debug 
+      exit 1
+    end
+
     puts "#{@programName}:: using #{@downloader} to scan for new subtitles" if @debug 
   end
 
  def shellescape(str)
+    puts "Shell Escape"
     return "''" if str.empty?
     str = str.dup
     str.gsub!(/([^A-Za-z0-9_\-.,:\/@\n])/n, "\\\\\\1")
@@ -62,17 +69,25 @@ class SubDlTrigger
   end
 
   def isVideoFile(name)
+    puts "isVideoFile"
     @extensions.include?(File.extname(name).downcase)
   end
 
   def run
     if File.directory?(@fullName) then
       Dir.glob("#{shellescape(@fullName)}/**",0).each { |entry|
-        @files << entry if isVideoFile(entry)
+        if isVideoFile(entry) then
+          @files << entry
+          puts "#{@programName}:: adding \"#{entry}\" to subtitle queue." if @debug
+        end
       }
     else
-      @files << shellescape(entry) if isVideoFile(entry)
+      if File.exists?(@fullName) and isVideoFile(@fullName) then
+        @files << shellescape(@fullName) 
+        puts "#{@programName}:: adding \"#{@fullName}\" to subtitle queue." if @debug
+      end
     end
+    puts "#{@programName}:: no videofiles found during this scan." if @debug and @files.length == 0
 
     @files.each{ |entry|
       download(entry)
