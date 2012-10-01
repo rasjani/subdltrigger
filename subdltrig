@@ -9,14 +9,19 @@ class SubDlTrigger
   attr_accessor :cmd
   attr_accessor :downloader
   attr_accessor :downloaders
+  attr_accessor :debug
+  attr_accessor :programNamae
 
   def initialize(arguments)
+    @debug = true
+    @programName = File.basename(__FILE__) 
     @id = arguments[0]
     @name = arguments[1]
     @saveFolder = arguments[2]
     @fullName = File.expand_path("#{@saveFolder}/#{@name}")
     @extensions = ['.mkv','.mpeg','.mpg','.avi']
-    @downloaders = ["periscope"] ## At the moment, only periscope support since
+    @downloaders = ["subliminal","periscope"] 
+                                 ## At the moment, only periscope support since
                                  ## subliminal doesn't have the ability to
                                  ## store search parameters into a file
     @files = Array.new
@@ -37,6 +42,7 @@ class SubDlTrigger
         end
       }
     }
+    puts "#{@programName}:: using #{@downloader} to scan for new subtitles" if @debug 
   end
 
  def shellescape(str)
@@ -49,7 +55,10 @@ class SubDlTrigger
 
   def download(fileName)
     cmd = "#{@downloader} '#{fileName}'"
+    puts "#{@programName}:: executing \"#{cmd}\""  if @debug
     %x[#{cmd}>>/dev/null 2>&1]
+    puts "#{@programName}:: downloader #{@downloader} exited with non-standard exit code #{$?.exitstatus}" if @debug  and $?.exitstatus != 0
+    puts "#{@programName}:: subtitles downloaded!" if @debug  and $?.exitstatus == 0
   end
 
   def isVideoFile(name)
@@ -76,6 +85,6 @@ if ARGV.length == 3 then
   dl = SubDlTrigger.new(ARGV)
   dl.run
 else
-  puts "meep!"
+  puts "meep!" if @debug 
 end
 
