@@ -19,8 +19,8 @@ class SubDlTrigger
     @name = arguments[1]
     @saveFolder = arguments[2]
     @fullName = File.expand_path("#{@saveFolder}/#{@name}")
-    @extensions = ['.mkv','.mpeg','.mpg','.avi']
-    @downloaders = ["subliminal","periscope"] 
+    @extensions = ['.mkv','.mpeg','.mpg','.avi','.mp4']
+    @downloaders = ["periscope","subliminal"] 
                                  ## At the moment, only periscope support since
                                  ## subliminal doesn't have the ability to
                                  ## store search parameters into a file
